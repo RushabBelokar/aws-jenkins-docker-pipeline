@@ -1,23 +1,34 @@
 pipeline {
     agent any
+    
+    // Define variables here so you only change them in one place
+    environment {
+        REPO_URL = 'https://github.com/RushabBelokar/aws-jenkins-docker-pipeline.git'
+        DOCKER_IMAGE = "rushabbelokar/docker-web-app:${BUILD_NUMBER}"
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/RushabBelokar/aws-jenkins-docker-pipeline.git'
+                // 'checkout scm' automatically uses the repo that triggered the build
+                checkout scm
             }
         }
+
         stage('Build Image') {
             steps {
-                sh 'docker build -t my-website:latest .'
+                // Ensure your Dockerfile is in the root of your repo
+                sh "docker build -t ${DOCKER_IMAGE} ."
             }
         }
+
         stage('Deploy') {
             steps {
-                sh 'docker stop web-container || true'
-                sh 'docker rm web-container || true'
-                sh 'docker run -d --name web-container -p 80:80 my-website:latest'
+                // This stops any old version and runs the new one
+                sh "docker stop my-web-container || true"
+                sh "docker rm my-web-container || true"
+                sh "docker run -d --name my-web-container -p 80:80 ${DOCKER_IMAGE}"
             }
         }
     }
-
 }
