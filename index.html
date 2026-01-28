@@ -1,12 +1,173 @@
-<h1>Project Deployed Successfully!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Global Login</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #0f172a;
+        }
 
-<p>Automated CI/CD Pipeline via Jenkins & Docker.</p>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
-<p>Build Version 1.0</p>
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--bg-color);
+            overflow: hidden;
+            perspective: 1000px; /* Essential for 3D tilt */
+        }
 
+        /* Mouse Follower Background */
+        #cursor-glow {
+            position: fixed;
+            top: 0; left: 0;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
 
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            z-index: 1;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out; /* Smooth tilt */
+        }
 
+        .lang-switcher { position: absolute; top: 20px; right: 20px; }
+        
+        h2 { color: #1e293b; margin-bottom: 2rem; text-align: center; font-size: 1.8rem; }
 
+        .input-group { position: relative; margin-bottom: 1.5rem; transform: translateZ(20px); }
+        
+        .input-group input {
+            width: 100%; padding: 14px; border: 2px solid #e2e8f0;
+            border-radius: 12px; outline: none; transition: 0.3s;
+        }
 
+        .input-group label {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); color: #94a3b8;
+            pointer-events: none; transition: 0.3s;
+        }
 
+        .input-group input:focus + label, 
+        .input-group input:not(:placeholder-shown) + label {
+            top: -12px; left: 10px; font-size: 0.75rem;
+            font-weight: 700; color: var(--primary);
+            background: white; padding: 0 6px;
+        }
 
+        button {
+            width: 100%; padding: 14px; background: var(--primary);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 600; cursor: pointer; transform: translateZ(30px);
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        button:hover { background: var(--primary-hover); transform: translateZ(40px) scale(1.02); }
+
+        .footer { margin-top: 1.5rem; display: flex; justify-content: space-between; font-size: 0.85rem; }
+        .footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+
+        /* RTL adjustments */
+        [dir="rtl"] .lang-switcher { right: auto; left: 20px; }
+        [dir="rtl"] .input-group label { left: auto; right: 14px; }
+    </style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+
+<div class="login-card" id="card">
+    <div class="lang-switcher">
+        <select id="langSelect" onchange="changeLanguage()">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="ar">العربية</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+
+    <h2 id="lblTitle">Welcome Back</h2>
+    
+    <div class="input-group">
+        <input type="email" id="email" placeholder=" " required>
+        <label id="lblEmail">Email Address</label>
+    </div>
+
+    <div class="input-group">
+        <input type="password" id="password" placeholder=" " required>
+        <label id="lblPass">Password</label>
+    </div>
+
+    <button id="btnSubmit">Sign In</button>
+
+    <div class="footer">
+        <a href="#" id="linkForgot">Forgot Password?</a>
+        <a href="#" id="linkSignup">Create Account</a>
+    </div>
+</div>
+
+<script>
+    const card = document.getElementById('card');
+    const glow = document.getElementById('cursor-glow');
+
+    // 1. Mouse Interaction Logic
+    document.addEventListener('mousemove', (e) => {
+        // Move background glow
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+
+        // Calculate Tilt
+        const xAxis = (window.innerWidth / 2 - e.clientX) / 25;
+        const yAxis = (window.innerHeight / 2 - e.clientY) / 25;
+        card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+
+    // Reset position when mouse leaves
+    document.addEventListener('mouseleave', () => {
+        card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        card.style.transition = "transform 0.5s ease";
+    });
+
+    document.addEventListener('mouseenter', () => {
+        card.style.transition = "none";
+    });
+
+    // 2. Language Switching Logic
+    const translations = {
+        en: { title: "Welcome Back", email: "Email Address", pass: "Password", btn: "Sign In", forgot: "Forgot Password?", signup: "Create Account", dir: "ltr" },
+        es: { title: "Bienvenido", email: "Correo Electrónico", pass: "Contraseña", btn: "Iniciar Sesión", forgot: "¿Olvidó su contraseña?", signup: "Crear cuenta", dir: "ltr" },
+        ar: { title: "مرحباً بعودتك", email: "البريد الإلكتروني", pass: "كلمة المرور", btn: "تسجيل الدخول", forgot: "هل نسيت كلمة المرور؟", signup: "إنشاء حساب", dir: "rtl" },
+        fr: { title: "Bon retour", email: "Adresse e-mail", pass: "Mot de passe", btn: "Se connecter", forgot: "Mot de passe oublié ?", signup: "Créer un compte", dir: "ltr" }
+    };
+
+    function changeLanguage() {
+        const lang = document.getElementById('langSelect').value;
+        const data = translations[lang];
+        document.getElementById('lblTitle').innerText = data.title;
+        document.getElementById('lblEmail').innerText = data.email;
+        document.getElementById('lblPass').innerText = data.pass;
+        document.getElementById('btnSubmit').innerText = data.btn;
+        document.getElementById('linkForgot').innerText = data.forgot;
+        document.getElementById('linkSignup').innerText = data.signup;
+        document.documentElement.dir = data.dir;
+    }
+</script>
+
+</body>
+</html>
