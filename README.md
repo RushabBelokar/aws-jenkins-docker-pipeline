@@ -18,3 +18,13 @@ A fully automated CI/CD pipeline that deploys a web application to an AWS EC2 in
 1. Ensure Docker is installed on your EC2.
 2. Add Jenkins to the Docker group: `sudo usermod -aG docker jenkins`.
 3. Configure the `Jenkinsfile` with your specific image name.
+
+## 📊 Pipeline Results
+The following image demonstrates the automated pipeline flow. After initial configuration and troubleshooting (Builds 3-6), the pipeline achieved 100% stability starting from Build #7.
+
+![Jenkins Pipeline Stages](pipeline-flow.png)
+
+### Stage Descriptions:
+* **Checkout:** Pulls the latest code from the `main` branch.
+* **Build Image:** Creates a fresh Docker image based on the `Dockerfile`.
+* **Deploy:** Updates the running container on the AWS EC2 instance.
